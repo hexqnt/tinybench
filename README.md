@@ -2,10 +2,10 @@
 Benchmarks for comparing TinyGo's performance
 
 ## Benchmarks chosen and focus
+
 - `fannkuch-redux`: Focused on integer operations on short arrays
 - `n-body`: Floating point operations and usage of math library (sqrt)
-    - `n-body-nosqrt`: Identical to above but replaces call to square-root math library function with a iterative solution. This benchmark shows the difference between C and Go math standard libraries. Go math library has more overhead for assembly implemented functions.
-- `rsa-keygen`: Usage of crypto library for secure key generation. C version uses OpenSSL while Go version uses standard library. Focus on speed of modern available crypto libraries.
+- `n-body-nosqrt`: Identical to above but replaces call to square-root math library function with a iterative solution. This benchmark shows the difference between C and Go math standard libraries. Go math library has more overhead for assembly implemented functions.
 
 ![Benchmarks](./benchmark.png)
 
@@ -14,7 +14,6 @@ Benchmarks for comparing TinyGo's performance
 - [TinyGo](https://tinygo.org/getting-started/). Either [quick install](https://tinygo.org/getting-started/install/) or [build from source](https://tinygo.org/docs/guides/build/)
 - Optional: [Zig](https://ziglang.org/)
 - Optional: [Rust](https://www.rust-lang.org/)
-- Optional: OpenSSH library. On Ubuntu: `sudo apt-get install openssh-server`
 
 
 ## Run Benchmarks
@@ -105,7 +104,6 @@ ok      tinybench       195.491s
 ## Result Summary
 - TinyGo is notably faster at integer number crunching.
 - TinyGo and C go head-to-head on floating point math when not calling specialized functions such as `sqrt`. Go lags behind.
-- OpenSSL is notably faster than Go's standard library at RSA key generation
 
 ## Add a benchmark
 The way tinybench works is all directories with no `.` or `_` character (anywhere in name) in this repos' root directory are added to the benchmark corpus.
@@ -113,7 +111,7 @@ Within each of these directories a `c` and `go` folder is searched for and their
 
 To add a new test follow these steps:
 
-1. Creating a new top level folder with a descriptive name such as `rsa-keygen` with no `.` or `_` characters
+1. Creating a new top level folder with a descriptive name such as `mandelbrot` with no `.` or `_` characters
 
 
 2. Add an `args.txt` file to the folder with the OS arguments to the program and add a single line with an argument i.e: `-s 1024` (flag `s` with value `1024`).
@@ -123,3 +121,4 @@ To add a new test follow these steps:
     - `<benchmark-name>/go/main.go`: Will contain a `package main` project that is compiled for the benchmark.
     - `<benchmark-name>/c/main.c`: Contains the C source code for benchmark. Since linking is done via flags you must add your project's flags to `gccFlags` map.
     - `<benchmark-name>/zig/main.zig`: Contains the Zig source code for benchmark.
+    - `<benchmark-name>/rust/main.rs`: Contains the Rust source code for benchmark.
