@@ -2,6 +2,9 @@ const std = @import("std");
 const stdout = std.io.getStdOut().writer();
 const stderr = std.io.getStdErr().writer();
 
+var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+const allocator = gpa.allocator();
+
 const Fannkuchen = struct {
     s: [16]i64,
     t: [16]i64,
@@ -72,10 +75,8 @@ const Fannkuchen = struct {
 };
 
 pub fn main() !void {
-    var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
-    defer arena.deinit();
-    const args = try std.process.argsAlloc(arena.allocator());
-    defer std.process.argsFree(arena.allocator(), args);
+    const args = try std.process.argsAlloc(allocator);
+    defer std.process.argsFree(allocator, args);
 
     if (args.len < 2) {
         try stderr.print("Usage: {s} <n>\n", .{args[0]});
