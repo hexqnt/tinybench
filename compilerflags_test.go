@@ -1,9 +1,8 @@
 package tinybench
 
 var gccLinkFlags = map[string][]string{
-	"rsa-keygen":    {"-lssl", "-lcrypto"}, // OpenSSL.
-	"n-body":        {"-lm"},               // Math library.
-	"n-body-nosqrt": {"-lm"},               // Math library.
+	"n-body":        {"-lm"}, // Math library.
+	"n-body-nosqrt": {"-lm"}, // Math library.
 }
 
 var gccBaseFlags = []string{
