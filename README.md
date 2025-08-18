@@ -8,6 +8,7 @@ Benchmarks for comparing TinyGo performance.
 - `fasta`: Generate and write random DNA sequences. This benchmark makes some use of dynamic memory allocation, thus putting Go's GC to test as well as Zig's allocator.
 - `n-body`: Floating point operations and usage of math library (sqrt)
 - `n-body-nosqrt`: Identical to above but replaces call to square-root math library function with a iterative solution. This benchmark shows the difference between C and Go math standard libraries. Go math library has more overhead for assembly implemented functions.
+- `spectral-norm`: Eigenvalue using the power method. This benchmark makes extensive use of dynamic memory allocation.
 
 ![Benchmarks](./benchmark.png)
 

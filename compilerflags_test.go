@@ -3,6 +3,7 @@ package tinybench
 var gccLinkFlags = map[string][]string{
 	"n-body":        {"-lm"}, // Math library.
 	"n-body-nosqrt": {"-lm"}, // Math library.
+	"spectral-norm": {"-lm"}, // Math library.
 }
 
 var gccBaseFlags = []string{
