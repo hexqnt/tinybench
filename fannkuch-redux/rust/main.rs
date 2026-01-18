@@ -96,32 +96,39 @@ impl Pfannkuch {
 }
 
 fn main() {
-    let args: Vec<String> = env::args().collect();
-    if args.len() < 2 {
-        eprintln!("usage: {} number", args.get(0).map_or("fannkuch_redux_rust", |s| s.as_str()));
-        process::exit(1);
-    }
-
-    let mut pf = Pfannkuch::new();
-    
-    match args[1].parse::<i32>() {
-        Ok(n) => pf.max_n = n,
-        Err(_) => {
-            eprintln!("Error: '{}' is not a valid number.", args[1]);
+    let mut args = env::args();
+    let program = args
+        .next()
+        .unwrap_or_else(|| "fannkuch_redux_rust".to_string());
+    let n_str = match args.next() {
+        Some(n) => n,
+        None => {
+            eprintln!("usage: {} number", program);
             process::exit(1);
         }
-    }
+    };
 
-    if pf.max_n < 3 || pf.max_n > 15 {
+    let n = match n_str.parse::<i32>() {
+        Ok(n) => n,
+        Err(_) => {
+            eprintln!("Error: '{}' is not a valid number.", n_str);
+            process::exit(1);
+        }
+    };
+
+    if n < 3 || n > 15 {
         eprintln!("Error: N must be between 3 and 15, inclusive.");
         process::exit(1);
     }
 
-    for i in 0..(pf.max_n as usize) {
+    let mut pf = Pfannkuch::new();
+    pf.max_n = n;
+
+    for i in 0..(n as usize) {
         pf.s[i] = i as Elem;
     }
 
-    pf.tk(pf.max_n);
+    pf.tk(n);
 
     println!("{}\nPfannkuchen({}) = {}", pf.checksum, pf.max_n, pf.maxflips);
 }
