@@ -1,5 +1,10 @@
 package tinybench
 
+const (
+	cpuTargetX86_64V3 = "x86-64-v3"
+	goAMD64LevelV3    = "v3"
+)
+
 var gccLinkFlags = map[string][]string{
 	"n-body":        {"-lm"}, // Math library.
 	"n-body-nosqrt": {"-lm"}, // Math library.
@@ -37,5 +42,6 @@ var tinygoBaseFlags = []string{
 
 var rustBaseFlags = []string{
 	"-Copt-level=3",
+	"-Ctarget-cpu=x86-64-v3",
 	"-o", "rust.bin",
 }

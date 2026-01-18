@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"runtime"
 	"strconv"
 	"strings"
 	"sync"
@@ -18,6 +19,7 @@ type Compiler struct {
 	Compiler       string
 	OutputBinary   string
 	MakeArgs       func(testname string) []string
+	Env            []string
 
 	Version [3]int // 0:Major, 1:Minor, 2:Patch
 }
@@ -31,15 +33,15 @@ func (c Compiler) VersionString() string {
 }
 
 var compilers = []Compiler{
-	{
-		Language:       "zig",
-		VersionCommand: exec.Command("zig", "version"),
-		Compiler:       "zig",
-		OutputBinary:   "./zig.bin",
-		MakeArgs: func(testname string) []string {
-			return append(zigBaseFlags, "./"+testname+"/zig/main.zig")
-		},
-	},
+	// {
+	// 	Language:       "zig",
+	// 	VersionCommand: exec.Command("zig", "version"),
+	// 	Compiler:       "zig",
+	// 	OutputBinary:   "./zig.bin",
+	// 	MakeArgs: func(testname string) []string {
+	// 		return append(zigBaseFlags, "./"+testname+"/zig/main.zig")
+	// 	},
+	// },
 	{
 		Language:       "rust",
 		VersionCommand: exec.Command("rustc", "-V"),
@@ -57,6 +59,7 @@ var compilers = []Compiler{
 		MakeArgs: func(testname string) []string {
 			return append(goBaseFlags, "./"+testname+"/go/main.go")
 		},
+		Env: []string{"GOAMD64=" + goAMD64LevelV3},
 	},
 	{
 		Language:       "go",
@@ -64,23 +67,24 @@ var compilers = []Compiler{
 		Compiler:       "tinygo",
 		OutputBinary:   "./tinybin",
 		MakeArgs: func(testname string) []string {
-			return append(tinygoBaseFlags, "./"+testname+"/go/main.go")
+			return tinygoArgs(testname)
 		},
+		Env: []string{"GOAMD64=" + goAMD64LevelV3},
 	},
-	{
-		Language:       "c",
-		VersionCommand: exec.Command("gcc", "--version"),
-		Compiler:       "gcc",
-		OutputBinary:   "./c.bin",
-		MakeArgs:       cFlags,
-	},
-	{
-		Language:       "c",
-		VersionCommand: exec.Command("clang", "--version"),
-		Compiler:       "clang",
-		OutputBinary:   "./c.bin",
-		MakeArgs:       cFlags,
-	},
+	// {
+	// 	Language:       "c",
+	// 	VersionCommand: exec.Command("gcc", "--version"),
+	// 	Compiler:       "gcc",
+	// 	OutputBinary:   "./c.bin",
+	// 	MakeArgs:       cFlags,
+	// },
+	// {
+	// 	Language:       "c",
+	// 	VersionCommand: exec.Command("clang", "--version"),
+	// 	Compiler:       "clang",
+	// 	OutputBinary:   "./c.bin",
+	// 	MakeArgs:       cFlags,
+	// },
 }
 
 func cFlags(testname string) []string {
@@ -88,6 +92,14 @@ func cFlags(testname string) []string {
 	cFilepath := "./" + testname + "/c/main.c"
 	ccFlags := append(gccBaseFlags, cFilepath)
 	return append(ccFlags, linkFlags...)
+}
+
+func tinygoArgs(testname string) []string {
+	args := append([]string{}, tinygoBaseFlags...)
+	if runtime.GOOS == "linux" && runtime.GOARCH == "amd64" {
+		args = append(args, "-target", "targets/linux-amd64-x86-64-v3.json")
+	}
+	return append(args, "./"+testname+"/go/main.go")
 }
 
 func BenchmarkAll(b *testing.B) {
@@ -134,7 +146,11 @@ func BenchmarkAll(b *testing.B) {
 			ensureCompile := func(b *testing.B) {
 				onceCompile.Do(func() {
 					compArgs := compiler.MakeArgs(testname)
-					out, err := exec.Command(compiler.Compiler, compArgs...).CombinedOutput()
+					cmd := exec.Command(compiler.Compiler, compArgs...)
+					if len(compiler.Env) > 0 {
+						cmd.Env = append(os.Environ(), compiler.Env...)
+					}
+					out, err := cmd.CombinedOutput()
 					if err != nil {
 						b.Fatalf("%s: building with %s flags=%v:\n%s", testname, compiler.Compiler, compArgs, out)
 					}
