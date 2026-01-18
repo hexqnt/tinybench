@@ -43,5 +43,9 @@ var tinygoBaseFlags = []string{
 var rustBaseFlags = []string{
 	"-Copt-level=3",
 	"-Ctarget-cpu=x86-64-v3",
+	"-Clto=thin",
+	"-Ccodegen-units=1", 
+	"-Cpanic=abort",
+	"-Cdebuginfo=0",
 	"-o", "rust.bin",
 }
