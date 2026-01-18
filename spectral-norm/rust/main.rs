@@ -26,27 +26,26 @@ fn times_trans(v: &mut [f64], u: &[f64]) {
     }
 }
 
-fn a_times_transp(v: &mut [f64], u: &[f64]) {
-    let n = u.len();
-    let mut x = vec![0.0; n];
-    times(&mut x, u);
-    times_trans(v, &x);
+fn a_times_transp(v: &mut [f64], u: &[f64], x: &mut [f64]) {
+    times(x, u);
+    times_trans(v, x);
 }
 
 fn main() {
-    let args: Vec<String> = env::args().collect();
-    let n: usize = if args.len() > 1 {
-        args[1].parse().unwrap_or(0)
-    } else {
-        0
-    };
+    let mut args = env::args();
+    args.next();
+    let n: usize = args
+        .next()
+        .and_then(|arg| arg.parse().ok())
+        .unwrap_or(0);
 
     let mut u = vec![1.0; n];
     let mut v = vec![1.0; n];
+    let mut x = vec![0.0; n];
 
     for _ in 0..10 {
-        a_times_transp(&mut v, &u);
-        a_times_transp(&mut u, &v);
+        a_times_transp(&mut v, &u, &mut x);
+        a_times_transp(&mut u, &v, &mut x);
     }
 
     let mut vBv = 0.0;

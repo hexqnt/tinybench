@@ -23,7 +23,7 @@ fn accumulate_probabilities(genelist: &mut [AminoAcid]) {
     }
 }
 
-fn repeat_fasta(s: &[u8], count: usize, out: &mut dyn Write) {
+fn repeat_fasta<W: Write>(s: &[u8], count: usize, out: &mut W) {
     let slen = s.len();
     let mut s2 = Vec::with_capacity(slen + WIDTH);
     s2.extend_from_slice(s);
@@ -47,8 +47,8 @@ const IM: u32 = 139968;
 const IA: u32 = 3877;
 const IC: u32 = 29573;
 
-fn random_fasta(genelist: &[AminoAcid], count: usize, out: &mut dyn Write) {
-    let mut buf = vec![0u8; WIDTH + 1];
+fn random_fasta<W: Write>(genelist: &[AminoAcid], count: usize, out: &mut W) {
+    let mut buf = [0u8; WIDTH + 1];
     let mut remaining = count;
     while remaining > 0 {
         let line = WIDTH.min(remaining);
@@ -72,12 +72,12 @@ fn random_fasta(genelist: &[AminoAcid], count: usize, out: &mut dyn Write) {
 }
 
 fn main() {
-    let args: Vec<String> = env::args().collect();
-    let n = if args.len() > 1 {
-        args[1].parse::<usize>().unwrap_or(0)
-    } else {
-        0
-    };
+    let mut args = env::args();
+    args.next();
+    let n = args
+        .next()
+        .and_then(|arg| arg.parse::<usize>().ok())
+        .unwrap_or(0);
 
     let mut iub = [
         AminoAcid { p: 0.27, c: b'a' },
@@ -98,10 +98,22 @@ fn main() {
     ];
 
     let mut homosapiens = [
-        AminoAcid { p: 0.3029549426680, c: b'a' },
-        AminoAcid { p: 0.1979883004921, c: b'c' },
-        AminoAcid { p: 0.1975473066391, c: b'g' },
-        AminoAcid { p: 0.3015094502008, c: b't' },
+        AminoAcid {
+            p: 0.3029549426680,
+            c: b'a',
+        },
+        AminoAcid {
+            p: 0.1979883004921,
+            c: b'c',
+        },
+        AminoAcid {
+            p: 0.1975473066391,
+            c: b'g',
+        },
+        AminoAcid {
+            p: 0.3015094502008,
+            c: b't',
+        },
     ];
 
     accumulate_probabilities(&mut iub);
@@ -116,7 +128,7 @@ AGGCGGAGGTTGCAGTGAGCCGAGATCGCGCCACTGCACTCC\
 AGCCTGGGCGACAGAGCGAGACTCCGTCTCAAAAA";
 
     let stdout = io::stdout();
-    let mut out = stdout.lock();
+    let mut out = io::BufWriter::new(stdout.lock());
 
     out.write_all(b">ONE Homo sapiens alu\n").unwrap();
     repeat_fasta(alu, 2 * n, &mut out);

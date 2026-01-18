@@ -38,10 +38,9 @@ fn sqrt_newton(a: f64, tol: f64) -> f64 {
 fn advance(bodies: &mut [Planet], dt: f64) {
     let n = bodies.len();
     for i in 0..n {
-        for j in (i + 1)..n {
-            let (slice1, slice2_plus) = bodies.split_at_mut(j);
-            let b1 = &mut slice1[i];
-            let b2 = &mut slice2_plus[0]; // This is effectively bodies[j]
+        let (left, right) = bodies.split_at_mut(i + 1);
+        let b1 = &mut left[i];
+        for b2 in right.iter_mut() {
 
             let dx = b1.x - b2.x;
             let dy = b1.y - b2.y;
@@ -161,16 +160,22 @@ fn initial_bodies() -> [Planet; NBODIES] {
 }
 
 fn main() {
-    let args: Vec<String> = env::args().collect();
-    if args.len() < 2 {
-        eprintln!("Usage: {} <number_of_steps>", args.get(0).map_or("nbody_rust_nosqrt", |s| s.as_str()));
-        process::exit(1);
-    }
+    let mut args = env::args();
+    let program = args
+        .next()
+        .unwrap_or_else(|| "nbody_rust_nosqrt".to_string());
+    let n_arg = match args.next() {
+        Some(arg) => arg,
+        None => {
+            eprintln!("Usage: {} <number_of_steps>", program);
+            process::exit(1);
+        }
+    };
 
-    let n_steps: usize = match args[1].parse() {
+    let n_steps: usize = match n_arg.parse() {
         Ok(n) => n,
         Err(_) => {
-            eprintln!("Error: Could not parse number of steps '{}'", args[1]);
+            eprintln!("Error: Could not parse number of steps '{}'", n_arg);
             process::exit(1);
         }
     };

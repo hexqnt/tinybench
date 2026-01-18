@@ -12,6 +12,17 @@ Benchmarks for comparing TinyGo performance.
 
 ![Benchmarks](./benchmark.png)
 
+## Disclaimer
+
+The following changes were made to the original benchmark code:
+
+- Rust uses `-Copt-level=2` (not maximum); TinyGo uses `-opt=2` (maximum). But for Rust the safe maximum is `-Copt-level=3`, so we set it.
+- `fasta` is dominated by stdout I/O; buffering differs across languages. Go most likely uses buffering by default, so we use it in Rust too via `io::BufWriter`.
+- Made the Rust code idiomatic so the compiler can eliminate unnecessary checks.
+- Removed allocations on hot paths.
+
+![Benchmarks](./benchmark_alt.png)
+
 ## Compilers
 
 - [clang](https://clang.llvm.org/)
