@@ -18,6 +18,7 @@ The following changes were made to the original benchmark code:
 
 - Rust uses `-Copt-level=2` (not maximum); TinyGo uses `-opt=2` (maximum). But for Rust the safe maximum is `-Copt-level=3`, so we set it.
 - For the `fannkuch-redux` benchmark, the outcome mostly depends on binary startup speed rather than the performance of the code inside. I added lightweight compilation flags such as `-Clto=thin`, `-Cpanic=abort`, `-Cdebuginfo=0` which reduce binary size and are the de facto standard for release builds.
+- Aligned everyone to `cpu-targer=x86-64-v3`.
 - `fasta` is dominated by stdout I/O; buffering differs across languages. Go most likely uses buffering by default, so we use it in Rust too via `io::BufWriter`.
 - Made the Rust code idiomatic so the compiler can eliminate unnecessary checks.
 - Removed allocations on hot paths.
